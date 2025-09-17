@@ -43,6 +43,8 @@ interface DesignElement {
 
 const PHOTO_DESIGN_STEPS = [
   "Design Mode Selection",
+  "Brand Selection",
+  "Model Selection",
   "Upload Screen",
   "Use As",
   "Collections & Stickers",
@@ -52,6 +54,8 @@ const PHOTO_DESIGN_STEPS = [
 
 const COLLECTIONS_FIRST_STEPS = [
   "Design Mode Selection",
+  "Brand Selection",
+  "Model Selection",
   "Collection Background",
   "Upload Screen (Optional)",
   "Stickers & Text",
@@ -61,6 +65,8 @@ const COLLECTIONS_FIRST_STEPS = [
 
 const COLLECTIONS_ONLY_STEPS = [
   "Design Mode Selection",
+  "Brand Selection",
+  "Model Selection",
   "Collection Background",
   "Stickers & Text",
   "Customisation",
@@ -69,6 +75,8 @@ const COLLECTIONS_ONLY_STEPS = [
 
 const SAY_IT_STEPS = [
   "Design Mode Selection",
+  "Brand Selection",
+  "Model Selection",
   "Phrase Selection",
   "AI Styling",
   "Customisation",
@@ -101,26 +109,71 @@ export default function CustomizePage() {
   const [cropArea, setCropArea] = useState({ x: 0, y: 0, width: 100, height: 100 })
   const [useAs, setUseAs] = useState<"background" | "sticker" | null>(null) // Added state for branching logic
 
-  const brands = ["Apple", "Samsung", "Google"]
+  const brands = [
+    { id: "apple", name: "Apple", icon: "🍎" },
+    { id: "samsung", name: "Samsung", icon: "📱" },
+  ]
 
   const devicesByBrand = {
-    Apple: [
-      { id: "iphone-15-pro", name: "iPhone 15 Pro", available: true },
-      { id: "iphone-15", name: "iPhone 15", available: true },
-      { id: "iphone-14-pro", name: "iPhone 14 Pro", available: true },
-      { id: "iphone-14", name: "iPhone 14", available: true },
-      { id: "iphone-13", name: "iPhone 13", available: true },
+    apple: [
+      {
+        id: "iphone-15-pro-max",
+        name: "iPhone 15 Pro Max",
+        available: true,
+        dimensions: { width: 192, height: 320 },
+        image: "/phone-models/iphone-15-pro-max.svg"
+      },
+      {
+        id: "iphone-15-pro",
+        name: "iPhone 15 Pro",
+        available: true,
+        dimensions: { width: 188, height: 312 },
+        image: "/phone-models/iphone-15-pro.svg"
+      },
+      {
+        id: "iphone-15",
+        name: "iPhone 15",
+        available: true,
+        dimensions: { width: 186, height: 310 },
+        image: "/phone-models/iphone-15.svg"
+      },
+      {
+        id: "iphone-14-pro",
+        name: "iPhone 14 Pro",
+        available: true,
+        dimensions: { width: 187, height: 311 },
+        image: "/phone-models/iphone-14-pro.svg"
+      },
     ],
-    Samsung: [
-      { id: "galaxy-s24-ultra", name: "Galaxy S24 Ultra", available: true },
-      { id: "galaxy-s24", name: "Galaxy S24", available: true },
-      { id: "galaxy-s23", name: "Galaxy S23", available: true },
-      { id: "galaxy-note-20", name: "Galaxy Note 20", available: true },
-    ],
-    Google: [
-      { id: "pixel-8-pro", name: "Pixel 8 Pro", available: false },
-      { id: "pixel-8", name: "Pixel 8", available: false },
-      { id: "pixel-7", name: "Pixel 7", available: false },
+    samsung: [
+      {
+        id: "galaxy-s24-ultra",
+        name: "Galaxy S24 Ultra",
+        available: true,
+        dimensions: { width: 195, height: 325 },
+        image: "/phone-models/galaxy-s24-ultra.svg"
+      },
+      {
+        id: "galaxy-s24-plus",
+        name: "Galaxy S24+",
+        available: true,
+        dimensions: { width: 190, height: 318 },
+        image: "/phone-models/galaxy-s24-plus.svg"
+      },
+      {
+        id: "galaxy-s24",
+        name: "Galaxy S24",
+        available: true,
+        dimensions: { width: 185, height: 308 },
+        image: "/phone-models/galaxy-s24.svg"
+      },
+      {
+        id: "galaxy-s23-ultra",
+        name: "Galaxy S23 Ultra",
+        available: true,
+        dimensions: { width: 194, height: 324 },
+        image: "/phone-models/galaxy-s23-ultra.svg"
+      },
     ],
   }
 
@@ -396,6 +449,10 @@ export default function CustomizePage() {
     switch (stepName) {
       case "Design Mode Selection":
         return selectedDesignMode !== null
+      case "Brand Selection":
+        return selectedBrand !== null
+      case "Model Selection":
+        return selectedModel !== null
       case "Upload Screen":
         return uploadedImage !== null
       case "Upload Screen (Optional)":
@@ -482,6 +539,78 @@ export default function CustomizePage() {
                 Browse Trending Designs
               </Button>
             </div>
+          </div>
+        )
+
+      case "Brand Selection":
+        return (
+          <div className="space-y-8">
+            <div className="text-center mb-8">
+              <h2 className="font-heading text-2xl mb-2">SELECT YOUR PHONE BRAND</h2>
+              <p className="text-muted-foreground">Choose your phone brand to continue</p>
+            </div>
+
+            <div className="space-y-4">
+              {brands.map((brand) => (
+                <Button
+                  key={brand.id}
+                  variant={selectedBrand === brand.id ? "default" : "outline"}
+                  className="w-full h-20 flex items-center justify-start p-6 rounded-3xl border-2"
+                  onClick={() => setSelectedBrand(brand.id)}
+                >
+                  <div className="text-4xl mr-4">{brand.icon}</div>
+                  <div className="text-left">
+                    <div className="font-medium text-lg">{brand.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {devicesByBrand[brand.id as keyof typeof devicesByBrand]?.length} models available
+                    </div>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </div>
+        )
+
+      case "Model Selection":
+        return (
+          <div className="space-y-8">
+            <div className="text-center mb-8">
+              <h2 className="font-heading text-2xl mb-2">SELECT YOUR PHONE MODEL</h2>
+              <p className="text-muted-foreground">
+                Choose your {brands.find(b => b.id === selectedBrand)?.name} model
+              </p>
+            </div>
+
+            {selectedBrand && (
+              <div className="space-y-4">
+                {devicesByBrand[selectedBrand as keyof typeof devicesByBrand]?.map((device) => (
+                  <Button
+                    key={device.id}
+                    variant={selectedModel === device.id ? "default" : "outline"}
+                    className="w-full h-24 flex items-center justify-between p-6 rounded-3xl border-2"
+                    onClick={() => setSelectedModel(device.id)}
+                    disabled={!device.available}
+                  >
+                    <div className="flex items-center">
+                      <div className="w-12 h-20 bg-muted rounded-lg mr-4 flex items-center justify-center">
+                        <div className="w-8 h-14 bg-foreground/20 rounded-md"></div>
+                      </div>
+                      <div className="text-left">
+                        <div className="font-medium text-lg">{device.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {device.available ? "Available" : "Coming Soon"}
+                        </div>
+                      </div>
+                    </div>
+                    {selectedModel === device.id && (
+                      <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                    )}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         )
 
@@ -907,6 +1036,14 @@ export default function CustomizePage() {
                             ? "Say It!"
                             : "Trending"}
                   </p>
+                  {selectedBrand && selectedModel && (
+                    <p>
+                      Phone: {brands.find(b => b.id === selectedBrand)?.name} {devicesByBrand[selectedBrand as keyof typeof devicesByBrand]?.find(d => d.id === selectedModel)?.name}
+                    </p>
+                  )}
+                  {selectedCollection && (
+                    <p>Collection: {collections.find(c => c.id === selectedCollection)?.name}</p>
+                  )}
                   {selectedPhrase && <p>Phrase: {selectedPhrase}</p>}
                   {aiStyle && <p>AI Style: {aiStyles.find((s) => s.id === aiStyle)?.name}</p>}
                   {selectedPreset && <p>Preset: {trendingPresets.find((p) => p.id === selectedPreset)?.name}</p>}
@@ -960,16 +1097,27 @@ export default function CustomizePage() {
         <div className="max-w-md mx-auto">
           <div className="mb-8">{renderStepContent()}</div>
 
-          {currentFlow && getCurrentStepName() !== "Design Mode Selection" && getCurrentStepName() !== "Trending" && (
+          {currentFlow && getCurrentStepName() !== "Design Mode Selection" && getCurrentStepName() !== "Brand Selection" && getCurrentStepName() !== "Trending" && (
             <div className="bg-muted/30 rounded-3xl p-6 mb-6">
               <div className="flex items-center justify-center">
-                <div
-                  className="relative w-48 h-80 bg-card rounded-[2.5rem] shadow-xl border-2 border-muted-foreground/20 overflow-hidden cursor-pointer"
-                  onMouseMove={handleDragMove}
-                  onMouseUp={handleDragEnd}
-                  onMouseLeave={handleDragEnd}
-                >
-                  <div className="absolute inset-3 bg-white rounded-[2rem] overflow-hidden">
+                {selectedModel ? (
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <h3 className="font-medium text-sm text-muted-foreground mb-2">
+                        {brands.find(b => b.id === selectedBrand)?.name} {devicesByBrand[selectedBrand as keyof typeof devicesByBrand]?.find(d => d.id === selectedModel)?.name}
+                      </h3>
+                    </div>
+                    <div
+                      className="relative bg-card rounded-[2.5rem] shadow-xl border-2 border-muted-foreground/20 overflow-hidden cursor-pointer mx-auto"
+                      style={{
+                        width: `${devicesByBrand[selectedBrand as keyof typeof devicesByBrand]?.find(d => d.id === selectedModel)?.dimensions.width || 192}px`,
+                        height: `${devicesByBrand[selectedBrand as keyof typeof devicesByBrand]?.find(d => d.id === selectedModel)?.dimensions.height || 320}px`
+                      }}
+                      onMouseMove={handleDragMove}
+                      onMouseUp={handleDragEnd}
+                      onMouseLeave={handleDragEnd}
+                    >
+                      <div className="absolute inset-3 bg-white rounded-[2rem] overflow-hidden">
                     {selectedCollection && (
                       <div
                         className={`absolute inset-0 bg-gradient-to-r ${collections.find((c) => c.id === selectedCollection)?.color}`}
@@ -1024,9 +1172,17 @@ export default function CustomizePage() {
                     </svg>
                   </div>
 
-                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-muted-foreground/30 rounded-full"></div>
-                  <div className="absolute top-4 right-4 w-2 h-2 bg-muted-foreground/30 rounded-full"></div>
-                </div>
+                      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-muted-foreground/30 rounded-full"></div>
+                      <div className="absolute top-4 right-4 w-2 h-2 bg-muted-foreground/30 rounded-full"></div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center p-8 text-muted-foreground">
+                    <div className="w-48 h-80 bg-muted/50 rounded-[2.5rem] mx-auto flex items-center justify-center">
+                      <p className="text-sm">Select a phone model to preview</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
