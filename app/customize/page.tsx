@@ -23,6 +23,7 @@ import {
   TrendingUp,
   Camera,
   Type,
+  Palette,
 } from "lucide-react"
 
 interface DesignElement {
@@ -40,31 +41,48 @@ interface DesignElement {
   src?: string
 }
 
-const PROGRAMME_STEPS = [
-  "Programme Selection",
-  "Upload Screen", // Photo path
-  "Use As", // Added branching step for background vs sticker choice
-  "Stickers/Background", // Photo path
-  "Customisation", // Photo path
+const PHOTO_DESIGN_STEPS = [
+  "Design Mode Selection",
+  "Upload Screen",
+  "Use As",
+  "Collections & Stickers",
+  "Customisation",
+  "Preview",
+]
+
+const COLLECTIONS_FIRST_STEPS = [
+  "Design Mode Selection",
+  "Collection Background",
+  "Upload Screen (Optional)",
+  "Stickers & Text",
+  "Customisation",
+  "Preview",
+]
+
+const COLLECTIONS_ONLY_STEPS = [
+  "Design Mode Selection",
+  "Collection Background",
+  "Stickers & Text",
+  "Customisation",
   "Preview",
 ]
 
 const SAY_IT_STEPS = [
-  "Programme Selection",
-  "Phrase Selection", // Say It path
-  "AI Styling", // Say It path
-  "Customisation", // Say It path
+  "Design Mode Selection",
+  "Phrase Selection",
+  "AI Styling",
+  "Customisation",
   "Preview",
 ]
 
 const TRENDING_STEPS = ["Trending", "Load Preset", "Customisation", "Preview"]
 
 export default function CustomizePage() {
-  const [currentFlow, setCurrentFlow] = useState<"photo" | "sayit" | "trending" | null>(null)
+  const [currentFlow, setCurrentFlow] = useState<"photo-design" | "collections-first" | "collections-only" | "sayit" | "trending" | null>(null)
   const [currentStep, setCurrentStep] = useState(0)
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null)
   const [selectedModel, setSelectedModel] = useState<string | null>(null)
-  const [selectedProgramme, setSelectedProgramme] = useState<string | null>(null)
+  const [selectedDesignMode, setSelectedDesignMode] = useState<string | null>(null)
   const [selectedPhrase, setSelectedPhrase] = useState<string | null>(null)
   const [aiStyle, setAiStyle] = useState<string | null>(null)
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
@@ -106,9 +124,31 @@ export default function CustomizePage() {
     ],
   }
 
-  const programmes = [
-    { id: "photo", name: "Photo Case", description: "Upload your photos", icon: Camera },
-    { id: "sayit", name: "Say It!", description: "AI-powered text designs", icon: Type },
+  const designModes = [
+    {
+      id: "photo-design",
+      name: "Photo + Design",
+      description: "Upload photos and add collection backgrounds",
+      icon: Camera
+    },
+    {
+      id: "collections-first",
+      name: "Collections First",
+      description: "Start with collection backgrounds, add photos optionally",
+      icon: Palette
+    },
+    {
+      id: "collections-only",
+      name: "Collections Only",
+      description: "Pure collection designs with stickers and text",
+      icon: Sparkles
+    },
+    {
+      id: "sayit",
+      name: "Say It!",
+      description: "AI-powered text designs",
+      icon: Type
+    },
   ]
 
   const phrases = [
@@ -191,9 +231,12 @@ export default function CustomizePage() {
   ]
 
   const getCurrentSteps = () => {
+    if (currentFlow === "photo-design") return PHOTO_DESIGN_STEPS
+    if (currentFlow === "collections-first") return COLLECTIONS_FIRST_STEPS
+    if (currentFlow === "collections-only") return COLLECTIONS_ONLY_STEPS
     if (currentFlow === "sayit") return SAY_IT_STEPS
     if (currentFlow === "trending") return TRENDING_STEPS
-    return PROGRAMME_STEPS
+    return PHOTO_DESIGN_STEPS
   }
 
   const getCurrentStepName = () => {
@@ -351,12 +394,16 @@ export default function CustomizePage() {
     const stepName = getCurrentStepName()
 
     switch (stepName) {
-      case "Programme Selection":
-        return selectedProgramme !== null
+      case "Design Mode Selection":
+        return selectedDesignMode !== null
       case "Upload Screen":
         return uploadedImage !== null
+      case "Upload Screen (Optional)":
+        return true // Optional step, can proceed without upload
       case "Use As":
         return useAs !== null
+      case "Collection Background":
+        return selectedCollection !== null
       case "Phrase Selection":
         return selectedPhrase !== null
       case "AI Styling":
@@ -365,7 +412,8 @@ export default function CustomizePage() {
         return true
       case "Load Preset":
         return selectedPreset !== null
-      case "Stickers/Background":
+      case "Collections & Stickers":
+      case "Stickers & Text":
         return true
       case "Customisation":
         return true
@@ -389,9 +437,9 @@ export default function CustomizePage() {
     }
   }
 
-  const handleProgrammeSelect = (programme: string) => {
-    setSelectedProgramme(programme)
-    setCurrentFlow(programme as "photo" | "sayit")
+  const handleDesignModeSelect = (mode: string) => {
+    setSelectedDesignMode(mode)
+    setCurrentFlow(mode as "photo-design" | "collections-first" | "collections-only" | "sayit")
   }
 
   const handleTrendingEntry = () => {
@@ -403,26 +451,26 @@ export default function CustomizePage() {
     const stepName = getCurrentStepName()
 
     switch (stepName) {
-      case "Programme Selection":
+      case "Design Mode Selection":
         return (
           <div className="space-y-8">
             <div className="text-center mb-8">
-              <h2 className="font-heading text-2xl mb-2">CHOOSE PROGRAMME</h2>
+              <h2 className="font-heading text-2xl mb-2">CHOOSE DESIGN MODE</h2>
               <p className="text-muted-foreground">Select how you want to create your case</p>
             </div>
 
             <div className="space-y-4">
-              {programmes.map((programme) => (
+              {designModes.map((mode) => (
                 <Button
-                  key={programme.id}
-                  variant={selectedProgramme === programme.id ? "default" : "outline"}
+                  key={mode.id}
+                  variant={selectedDesignMode === mode.id ? "default" : "outline"}
                   className="w-full h-20 flex items-center justify-start p-6 rounded-3xl border-2"
-                  onClick={() => handleProgrammeSelect(programme.id)}
+                  onClick={() => handleDesignModeSelect(mode.id)}
                 >
-                  <programme.icon className="h-8 w-8 mr-4" />
+                  <mode.icon className="h-8 w-8 mr-4" />
                   <div className="text-left">
-                    <div className="font-medium text-lg">{programme.name}</div>
-                    <div className="text-sm text-muted-foreground">{programme.description}</div>
+                    <div className="font-medium text-lg">{mode.name}</div>
+                    <div className="text-sm text-muted-foreground">{mode.description}</div>
                   </div>
                 </Button>
               ))}
@@ -438,11 +486,20 @@ export default function CustomizePage() {
         )
 
       case "Upload Screen":
+      case "Upload Screen (Optional)":
+        const isOptional = stepName === "Upload Screen (Optional)"
         return (
           <div className="space-y-8">
             <div className="text-center mb-8">
-              <h2 className="font-heading text-2xl mb-2">UPLOAD YOUR PHOTO</h2>
-              <p className="text-muted-foreground">Add the photo you want on your case</p>
+              <h2 className="font-heading text-2xl mb-2">
+                {isOptional ? "ADD A PHOTO (OPTIONAL)" : "UPLOAD YOUR PHOTO"}
+              </h2>
+              <p className="text-muted-foreground">
+                {isOptional
+                  ? "You can add a photo to your collection design or skip this step"
+                  : "Add the photo you want on your case"
+                }
+              </p>
             </div>
 
             {!uploadedImage ? (
@@ -542,6 +599,50 @@ export default function CustomizePage() {
           </div>
         )
 
+      case "Collection Background":
+        return (
+          <div className="space-y-8">
+            <div className="text-center mb-8">
+              <h2 className="font-heading text-2xl mb-2">CHOOSE COLLECTION BACKGROUND</h2>
+              <p className="text-muted-foreground">Select a collection background for your design</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {collections.map((collection) => (
+                <Button
+                  key={collection.id}
+                  variant={selectedCollection === collection.id ? "default" : "outline"}
+                  className="h-24 p-4 flex flex-col rounded-2xl border-2"
+                  onClick={() => setSelectedCollection(collection.id)}
+                >
+                  <div className={`w-full h-12 rounded-xl bg-gradient-to-r ${collection.color} mb-2`}></div>
+                  <span className="text-sm font-medium">{collection.name}</span>
+                </Button>
+              ))}
+            </div>
+
+            <div className="border-2 border-dashed border-muted-foreground/25 rounded-3xl p-6 text-center">
+              <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground mb-3">Or upload custom collection background</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-full bg-transparent"
+                onClick={() => collectionUploadRef.current?.click()}
+              >
+                Choose File
+              </Button>
+              <input
+                ref={collectionUploadRef}
+                type="file"
+                accept="image/*"
+                onChange={handleCollectionUpload}
+                className="hidden"
+              />
+            </div>
+          </div>
+        )
+
       case "Trending":
         return (
           <div className="space-y-8">
@@ -636,22 +737,39 @@ export default function CustomizePage() {
           </div>
         )
 
-      case "Stickers/Background":
+      case "Collections & Stickers":
+      case "Stickers & Text":
+        const stepName2 = getCurrentStepName()
         return (
           <div className="space-y-8">
             <div className="text-center mb-8">
               <h2 className="font-heading text-2xl mb-2">
-                {useAs === "background" ? "ADD STICKERS" : "STICKERS & BACKGROUND"}
+                {stepName2 === "Collections & Stickers" ? "COLLECTIONS & STICKERS" : "STICKERS & TEXT"}
               </h2>
               <p className="text-muted-foreground">
-                {useAs === "background"
-                  ? "Add stickers and overlays to your background design"
-                  : "Add backgrounds and stickers to your design"}
+                {stepName2 === "Collections & Stickers"
+                  ? "Add collection backgrounds and stickers to your design"
+                  : "Add stickers and text to your collection background"}
               </p>
             </div>
 
-            {useAs !== "background" && (
+            {stepName2 === "Collections & Stickers" && (
               <>
+                <div className="text-center text-xs text-muted-foreground mb-4">COLLECTION BACKGROUNDS</div>
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  {collections.slice(0, 6).map((collection) => (
+                    <Button
+                      key={collection.id}
+                      variant={selectedCollection === collection.id ? "default" : "outline"}
+                      className="h-20 p-3 flex flex-col rounded-2xl border-2"
+                      onClick={() => setSelectedCollection(collection.id)}
+                    >
+                      <div className={`w-full h-8 rounded-lg bg-gradient-to-r ${collection.color} mb-1`}></div>
+                      <span className="text-xs font-medium">{collection.name}</span>
+                    </Button>
+                  ))}
+                </div>
+
                 <div className="border-2 border-dashed border-muted-foreground/25 rounded-3xl p-6 text-center mb-6">
                   <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
                   <p className="text-sm text-muted-foreground mb-3">Upload Custom Background</p>
@@ -670,28 +788,6 @@ export default function CustomizePage() {
                     onChange={handleBackgroundUpload}
                     className="hidden"
                   />
-                </div>
-
-                <div className="text-center text-xs text-muted-foreground mb-4">BACKGROUNDS</div>
-                <div className="grid grid-cols-3 gap-3 mb-6">
-                  {backgrounds.slice(0, 6).map((bg) => (
-                    <Button
-                      key={bg.id}
-                      variant={selectedBackground === bg.id ? "default" : "outline"}
-                      className="h-16 p-2 rounded-2xl border-2"
-                      onClick={() => setSelectedBackground(bg.id)}
-                    >
-                      <div
-                        className="w-full h-8 rounded-lg border"
-                        style={{
-                          background:
-                            bg.preview === "transparent"
-                              ? "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 8px 8px"
-                              : bg.preview,
-                        }}
-                      ></div>
-                    </Button>
-                  ))}
                 </div>
               </>
             )}
@@ -800,12 +896,16 @@ export default function CustomizePage() {
                 <h3 className="font-medium mb-3">Design Summary</h3>
                 <div className="text-sm text-muted-foreground space-y-2">
                   <p>
-                    Programme:{" "}
-                    {selectedProgramme === "photo"
-                      ? "Photo Case"
-                      : selectedProgramme === "sayit"
-                        ? "Say It!"
-                        : "Trending"}
+                    Design Mode:{" "}
+                    {selectedDesignMode === "photo-design"
+                      ? "Photo + Design"
+                      : selectedDesignMode === "collections-first"
+                        ? "Collections First"
+                        : selectedDesignMode === "collections-only"
+                          ? "Collections Only"
+                          : selectedDesignMode === "sayit"
+                            ? "Say It!"
+                            : "Trending"}
                   </p>
                   {selectedPhrase && <p>Phrase: {selectedPhrase}</p>}
                   {aiStyle && <p>AI Style: {aiStyles.find((s) => s.id === aiStyle)?.name}</p>}
@@ -860,7 +960,7 @@ export default function CustomizePage() {
         <div className="max-w-md mx-auto">
           <div className="mb-8">{renderStepContent()}</div>
 
-          {currentFlow && getCurrentStepName() !== "Programme Selection" && getCurrentStepName() !== "Trending" && (
+          {currentFlow && getCurrentStepName() !== "Design Mode Selection" && getCurrentStepName() !== "Trending" && (
             <div className="bg-muted/30 rounded-3xl p-6 mb-6">
               <div className="flex items-center justify-center">
                 <div
@@ -870,7 +970,12 @@ export default function CustomizePage() {
                   onMouseLeave={handleDragEnd}
                 >
                   <div className="absolute inset-3 bg-white rounded-[2rem] overflow-hidden">
-                    {selectedBackground && selectedBackground !== "none" && (
+                    {selectedCollection && (
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-r ${collections.find((c) => c.id === selectedCollection)?.color}`}
+                      ></div>
+                    )}
+                    {selectedBackground && selectedBackground !== "none" && !selectedCollection && (
                       <div
                         className="absolute inset-0"
                         style={{
